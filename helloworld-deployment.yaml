@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-deployment
+  namespace: pujitha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: helloworld-app
+  template:
+    metadata:
+      labels:
+        app: helloworld-app
+    spec:
+      initContainers:
+      - name: copy-html
+        image: pujithaperisetla01/helloworld
+        command: ["/bin/sh", "-c", "cp -r /usr/share/nginx/html/* /mnt/html/"]
+        volumeMounts:
+        - name: helloworld-storage
+          mountPath: /mnt/html
+      containers:
+      - name: helloworld-container
+        image: pujithaperisetla01/helloworld
+        ports:
+        - containerPort: 80
+        env:
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: helloworld-configmap
+              key: APP_MESSAGE
+        - name: APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: helloworld-secret
+              key: password
+        volumeMounts:
+        - name: helloworld-storage
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: helloworld-storage
+        persistentVolumeClaim:
+          claimName: helloworld-pvc
+
