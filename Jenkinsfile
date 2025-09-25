@@ -40,23 +40,22 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                withCredentials([file(credentialsId: 'kube-config-id', variable: 'KUBECONFIG')]) {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG
-                        kubectl config use-context kind-mycluster
+                sh '''
+                    export KUBECONFIG=/home/ubuntu/.kube/config
+                    kubectl config use-context kind-mycluster
         
-                        kubectl apply -f namespace.yaml --validate=false
-                        kubectl apply -f configmap.yaml --validate=false
-                        kubectl apply -f secret.yaml --validate=false
-                        kubectl apply -f pvc.yaml --validate=false
-                        kubectl apply -f helloworld-deployment.yaml --validate=false
-                        kubectl apply -f helloworld-service.yaml --validate=false
+                    kubectl apply -f namespace.yaml --validate=false
+                    kubectl apply -f configmap.yaml --validate=false
+                    kubectl apply -f secret.yaml --validate=false
+                    kubectl apply -f pvc.yaml --validate=false
+                    kubectl apply -f helloworld-deployment.yaml --validate=false
+                    kubectl apply -f helloworld-service.yaml --validate=false
         
-                        kubectl rollout restart deployment/helloworld-deployment -n pujitha
-                    '''
-                }
+                    kubectl rollout restart deployment/helloworld-deployment -n pujitha
+                '''
             }
         }
+
 
     }
 }
