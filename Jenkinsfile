@@ -6,7 +6,7 @@ pipeline{
     IMAGE_TAG = latest
   }
   stages{
-    stage("clone git repo'){
+    stage("clone git repo"){
       steps{
         git branch: 'main',url : 'https://github.com/perisetlapujithalakshmi/kubernetes_usecase.git'
       }
