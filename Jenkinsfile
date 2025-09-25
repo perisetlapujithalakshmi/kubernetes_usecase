@@ -31,7 +31,10 @@ pipeline {
 
         stage("Scan Image") {
             steps {
-                sh 'trivy image $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG || true'
+                withEnv(["TRIVY_CACHE_DIR=/data/trivy_cache"]) {
+    sh "trivy image pujithaperisetla01/helloworld:latest"
+}
+               
             }
         }
 
