@@ -42,11 +42,6 @@ pipeline {
     steps {
         withCredentials([file(credentialsId: 'kube-config-id', variable: 'KUBECONFIG')]) {
             sh '''
-            export KUBECONFIG=/data/kube/config
-            kubectl cluster-info
-            kubectl get nodes
-            '''
-            sh '''
                 export KUBECONFIG=/data/kube/config
                 kubectl config use-context kind-mycluster
                 kubectl apply -f namespace.yaml --validate=false
