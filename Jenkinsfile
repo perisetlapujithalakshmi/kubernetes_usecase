@@ -42,7 +42,6 @@ pipeline {
     steps {
         withCredentials([file(credentialsId: 'kube-config-id', variable: 'KUBECONFIG')]) {
             sh '''
-                export KUBECONFIG=/data/kube/config
                 kubectl config use-context kind-mycluster
                 kubectl apply -f namespace.yaml --validate=false
                 kubectl apply -f configmap.yaml
@@ -57,6 +56,7 @@ pipeline {
         }
     }
 }
+
 
 
 
