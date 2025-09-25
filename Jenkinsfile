@@ -1,9 +1,9 @@
 pipeline{
   agent any
   environment{
-    DOCKERHUB_USER = pujithaperisetla01
-    IMAGE_NAME = helloworld
-    IMAGE_TAG = latest
+    DOCKERHUB_USER = 'pujithaperisetla01'
+    IMAGE_NAME = 'helloworld'
+    IMAGE_TAG = 'latest'
   }
   stages{
     stage("clone git repo"){
@@ -13,7 +13,7 @@ pipeline{
     }
     stage("Build docker image"){
       steps{
-        sh 'docker build -t $DOCKERHUB_USER/$IMAGE_NAME/$IMAGE_TAG .'
+        sh 'docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .'
       }
     }
     stage("push the image to dockerhub"){
@@ -23,6 +23,7 @@ pipeline{
                     sh 'docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG'
         }
     }
+    }
     stage("Scan image"){
       steps{
         sh 'trivy image $DOCKERHUB_USER/$IMAGE_NAME/$IMAGE_TAG || true'
@@ -30,7 +31,7 @@ pipeline{
     }
     stage("Deploy to kubernetes"){
       steps{
-        withKubeConfig([credentialsId: 'kubeconfig-cred', serverUrl: 'https://<your-cluster-endpoint>']){
+        withKubeConfig([credentialsId: 'kubeconfig-cred']){
           sh '''
           kubectl apply -f namespace.yaml
           kubectl apply -f configmap.yaml
