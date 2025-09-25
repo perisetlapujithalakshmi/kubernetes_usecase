@@ -42,18 +42,21 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kube-config-id', variable: 'KUBECONFIG')]) {
                     sh '''
-                        kubectl apply -f namespace.yaml
-                        kubectl apply -f configmap.yaml
-                        kubectl apply -f secret.yaml
-                        kubectl apply -f pvc.yaml
-                        kubectl apply -f helloworld-deployment.yaml
-                        kubectl apply -f helloworld-service.yaml
-
-                        # Restart deployment to pull latest image
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl config use-context kind-mycluster
+        
+                        kubectl apply -f namespace.yaml --validate=false
+                        kubectl apply -f configmap.yaml --validate=false
+                        kubectl apply -f secret.yaml --validate=false
+                        kubectl apply -f pvc.yaml --validate=false
+                        kubectl apply -f helloworld-deployment.yaml --validate=false
+                        kubectl apply -f helloworld-service.yaml --validate=false
+        
                         kubectl rollout restart deployment/helloworld-deployment -n pujitha
                     '''
                 }
             }
         }
+
     }
 }
