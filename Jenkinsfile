@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = 'pujithaperisetla01'
-        IMAGE_NAME = 'helloworld'
-        IMAGE_TAG = 'latest'
+        IMAGE_NAME     = 'helloworld'
+        IMAGE_TAG      = 'latest'
     }
 
     stages {
@@ -32,33 +32,29 @@ pipeline {
         stage("Scan Image") {
             steps {
                 withEnv(["TRIVY_CACHE_DIR=/data/trivy_cache"]) {
-    sh "trivy image pujithaperisetla01/helloworld:latest"
-}
-               
+                    sh "trivy image $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
+                }
             }
         }
 
         stage("Deploy to Kubernetes") {
-    steps {
-        withCredentials([file(credentialsId: 'kube-config-id', variable: 'KUBECONFIG')]) {
-            sh '''
-                kubectl config use-context kind-mycluster
-                kubectl apply -f namespace.yaml --validate=false
-                kubectl apply -f configmap.yaml
-                kubectl apply -f secret.yaml
-                kubectl apply -f pvc.yaml
-                kubectl apply -f helloworld-deployment.yaml
-                kubectl apply -f helloworld-service.yaml
+            steps {
+                withEnv(["KUBECONFIG=/data/kube/config"]) {
+                    sh "kubectl config use-context kind-mycluster"
+                    sh "kubectl get pods -A"
 
-                # Restart deployment to pull latest image
-                kubectl rollout restart deployment/helloworld-deployment -n pujitha
-            '''
+                    sh '''
+                        kubectl apply -f namespace.yaml --validate=false
+                        kubectl apply -f configmap.yaml
+                        kubectl apply -f secret.yaml
+                        kubectl apply -f pvc.yaml
+                        kubectl apply -f helloworld-deployment.yaml
+                        kubectl apply -f helloworld-service.yaml
+
+                        kubectl rollout restart deployment/helloworld-deployment -n pujitha
+                    '''
+                }
+            }
         }
-    }
-}
-
-
-
-
     }
 }
