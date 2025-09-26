@@ -39,9 +39,10 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                withEnv(["KUBECONFIG=/data/kube/config"]) {
-                    sh "kubectl config use-context kind-mycluster"
+                withEnv(["KUBECONFIG=/root/.kube/config"]) {
                     sh "kubectl get pods -A"
+            }
+
 
                     sh '''
                         kubectl apply -f namespace.yaml --validate=false
