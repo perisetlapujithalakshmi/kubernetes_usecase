@@ -39,11 +39,6 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                withEnv(["KUBECONFIG=/root/.kube/config"]) {
-                    sh "kubectl get pods -A"
-            
-
-
                     sh '''
                         kubectl apply -f namespace.yaml --validate=false
                         kubectl apply -f configmap.yaml
@@ -54,7 +49,6 @@ pipeline {
 
                         kubectl rollout restart deployment/helloworld-deployment -n pujitha
                     '''
-                }
             }
         }
     }
