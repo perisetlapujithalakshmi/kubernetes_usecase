@@ -41,7 +41,7 @@ pipeline {
             steps {
                 withEnv(["KUBECONFIG=/root/.kube/config"]) {
                     sh "kubectl get pods -A"
-            }
+            
 
 
                     sh '''
