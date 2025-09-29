@@ -38,6 +38,14 @@ pipeline {
                 }
             }
         }
+        stage("Create Kind Cluster") {
+    steps {
+        sh '''
+        kind create cluster --name mycluster --config /data/kubernetes/usecase/kind-cluster.yaml
+        export KUBECONFIG=$(kind get kubeconfig-path --name="mycluster")
+        '''
+    }
+}
 
         stage("Deploy to Kubernetes") {
     steps {
