@@ -40,20 +40,21 @@ pipeline {
         }
 
         stage("Deploy to Kubernetes") {
-            steps {
-                withEnv(["KUBECONFIG=/data/kube/config"]) {
-                    sh '''
-                        kubectl apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
-                        kubectl apply -f /data/kubernetes/usecase/configmap.yaml
-                        kubectl apply -f /data/kubernetes/usecase/secret.yaml
-                        kubectl apply -f /data/kubernetes/usecase/pvc.yaml
-                        kubectl apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
-                        kubectl apply -f /data/kubernetes/usecase/helloworld-service.yaml
+    steps {
+        withEnv(["KUBECONFIG=/data/kube/config"]) {
+            sh '''
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/configmap.yaml
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/secret.yaml
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/pvc.yaml
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
+                kubectl --insecure-skip-tls-verify apply -f /data/kubernetes/usecase/helloworld-service.yaml
 
-                        kubectl rollout restart deployment/helloworld-deployment -n pujitha
-                    '''
-            }
-            }
+                kubectl --insecure-skip-tls-verify rollout restart deployment/helloworld-deployment -n pujitha
+            '''
         }
+    }
+}
+
     }
 }
