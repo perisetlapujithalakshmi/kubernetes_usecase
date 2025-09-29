@@ -16,7 +16,7 @@ pipeline {
 
         stage("Build Docker Image") {
             steps {
-                sh 'docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .'
+                sh "docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG ."
             }
         }
 
@@ -39,15 +39,14 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
-            sh "kubectl get pods -A"
+                withEnv(["KUBECONFIG=/data/kube/config"]) {
                     sh '''
-                        kubectl apply -f namespace.yaml --validate=false
-                        kubectl apply -f configmap.yaml
-                        kubectl apply -f secret.yaml
-                        kubectl apply -f pvc.yaml
-                        kubectl apply -f helloworld-deployment.yaml
-                        kubectl apply -f helloworld-service.yaml
+                        kubectl apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
+                        kubectl apply -f /data/kubernetes/usecase/configmap.yaml
+                        kubectl apply -f /data/kubernetes/usecase/secret.yaml
+                        kubectl apply -f /data/kubernetes/usecase/pvc.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-service.yaml
 
                         kubectl rollout restart deployment/helloworld-deployment -n pujitha
                     '''
