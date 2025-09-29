@@ -41,7 +41,7 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
     steps {
-        withEnv(["KUBECONFIG=/data/kube/config"]) {
+        withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
             sh '''
                 kubectl  apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
                 kubectl  apply -f /data/kubernetes/usecase/configmap.yaml
