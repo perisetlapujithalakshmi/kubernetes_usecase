@@ -10,8 +10,10 @@ pipeline {
     stages {
         stage("Clone Git Repo") {
             steps {
+               dir('/data/kubernetes/usecase'){
                 git branch: 'main', url: 'https://github.com/perisetlapujithalakshmi/kubernetes_usecase.git'
             }
+        }
         }
 
         stage("Build Docker Image") {
