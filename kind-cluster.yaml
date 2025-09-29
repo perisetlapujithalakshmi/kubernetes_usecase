@@ -3,7 +3,11 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
     extraPortMappings:
+      - containerPort: 6443
+        hostPort: 6443
+        protocol: TCP
       - containerPort: 30007
         hostPort: 30007
         protocol: TCP
   - role: worker
+
