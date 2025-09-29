@@ -46,9 +46,9 @@ pipeline {
                         kubectl apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
                         kubectl apply -f /data/kubernetes/usecase/configmap.yaml
                         kubectl apply -f /data/kubernetes/usecase/secret.yaml
-                        kubectl apply -f kubernetes/usecase/pvc.yaml
-                        kubectl apply -f kubernetes/usecase/helloworld-deployment.yaml
-                        kubectl apply -f kubernetes/usecase/helloworld-service.yaml
+                        kubectl apply -f /data/kubernetes/usecase/pvc.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-service.yaml
 
                         kubectl rollout restart deployment/helloworld-deployment -n pujitha
                     '''
