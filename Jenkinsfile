@@ -39,21 +39,18 @@ pipeline {
             }
         }
 
-        stage("Deploy to Kubernetes") {
-            steps {
-                withEnv(["KUBECONFIG=/data/kube/config"]) {
-                    sh '''
-                        kubectl apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
-                        kubectl apply -f /data/kubernetes/usecase/configmap.yaml
-                        kubectl apply -f /data/kubernetes/usecase/secret.yaml
-                        kubectl apply -f /data/kubernetes/usecase/pvc.yaml
-                        kubectl apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
-                        kubectl apply -f /data/kubernetes/usecase/helloworld-service.yaml
-
-                        kubectl rollout restart deployment/helloworld-deployment -n pujitha
-                    '''
-            }
-            }
+        stage('Deploy to Kubernetes via Helm') {
+    steps {
+        withEnv(["KUBECONFIG=/home/ubuntu/.kube/config"]) {
+            sh """
+                cd /data/kubernetes/helm/helloworld
+                helm upgrade --install helloworld . \
+                    --set image.repository=${DOCKERHUB_USER}/${IMAGE_NAME} \
+                    --set image.tag=${IMAGE_TAG}
+            """
         }
+    }
+}
+
     }
 }
