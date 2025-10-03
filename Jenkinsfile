@@ -10,27 +10,23 @@ pipeline {
     stages {
         stage("Clone Git Repo") {
             steps {
-                dir('/data/kubernetes/usecase') {
-                    git branch: 'main', url: 'https://github.com/perisetlapujithalakshmi/kubernetes_usecase.git'
-                }
+               dir('/data/kubernetes/usecase'){
+                git branch: 'main', url: 'https://github.com/perisetlapujithalakshmi/kubernetes_usecase.git'
             }
+        }
         }
 
         stage("Build Docker Image") {
             steps {
-                dir('/data/kubernetes/usecase') { // Make sure Docker build runs in correct directory
-                    sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                }
+                sh "docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG ."
             }
         }
 
         stage("Push the Image to DockerHub") {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh """
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
-                    """
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG'
                 }
             }
         }
@@ -38,21 +34,25 @@ pipeline {
         stage("Scan Image") {
             steps {
                 withEnv(["TRIVY_CACHE_DIR=/data/trivy_cache"]) {
-                    sh "trivy image ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "trivy image $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
 
-        stage('Deploy to Kubernetes via Helm') {
+        stage("Deploy to Kubernetes") {
             steps {
-                withEnv(["KUBECONFIG=/home/ubuntu/.kube/config"]) {
-                    sh """
-                        cd /data/kubernetes/helm/helloworld
-                        helm upgrade --install helloworld . \
-                            --set image.repository=${DOCKERHUB_USER}/${IMAGE_NAME} \
-                            --set image.tag=${IMAGE_TAG}
-                    """
-                }
+                withEnv(["KUBECONFIG=/data/kube/config"]) {
+                    sh '''
+                        kubectl apply -f /data/kubernetes/usecase/namespace.yaml --validate=false
+                        kubectl apply -f /data/kubernetes/usecase/configmap.yaml
+                        kubectl apply -f /data/kubernetes/usecase/secret.yaml
+                        kubectl apply -f /data/kubernetes/usecase/pvc.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-deployment.yaml
+                        kubectl apply -f /data/kubernetes/usecase/helloworld-service.yaml
+
+                        kubectl rollout restart deployment/helloworld-deployment -n pujitha
+                    '''
+            }
             }
         }
     }
